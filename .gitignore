@@ -1,0 +1,119 @@
+## gitignore version 20200511.232000 by drbeco
+
+## Executables
+*.exe
+*.out
+*.x
+*.bin
+*.xpt
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+## Object files
+*.o
+*.obj
+*.ko
+*.elf
+
+## Precompiled Headers
+*.gch
+*.pch
+
+## Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+## Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+
+## Debug, profile-arcs and misc files
+*.dSYM/
+*.orig
+*.err
+*.gcda
+*.log
+
+## Secret files
+MYTOKEN
+
+# Swap, session, backup files and alike
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+Session.vim
+*.~
+*.bkp
+
+# Translations
+*.mo
+*.pot
+
+## Latex Core
+*.aux
+*.log
+*.lof
+*.lot
+*.lol
+*.out
+*.toc
+
+## Latex Intermediate documents (caution, can exclude figures):
+*.dvi
+# *.ps
+# *.eps
+# *.pdf
+
+## Latex Bibliography auxiliary files (bibtex):
+*.bbl
+*.blg
+
+## Latex beamer
+*.nav
+*.snm
+*.vrb
+
+## Latex glossaries
+*.acn
+*.acr
+*.glg
+*.glo
+*.gls
+
+## Latex Build tool auxiliary files:
+*.kilepr
+*.zip
+*.backup
+*.back
+*.cpr
+*.tar.gz
+*.synctex.gz
+*.sav
+*.prj
+*.autosave
+*.~
+*.kate-swp
+
+## Latex makeidx / minitoc / hyperref / todonotes / xindy
+*.idx
+*.ilg
+*.ind
+*.ist
+*.maf
+*.mtc
+*.mtc0
+*.brf
+*.tdo
+*.xdy
+
+## Linux / Debian / KDE / Dolphin
+.directory
+
