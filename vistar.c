@@ -405,8 +405,8 @@ exit_loop:
 void help(void)
 {
     IFDEBUG("help()");
-    printf("%s - %s\n", "exN", "Brief description");
-    printf("\nUsage: %s [-h|-v]\n", "exN");
+    printf("%s - %s\n", "ViStar", "Brief description");
+    printf("\nUsage: %s [-h|-v]\n", "ViStar");
     printf("\nOptions:\n");
     printf("\t-h,  --help\n\t\tShow this help.\n");
     printf("\t-V,  --version\n\t\tShow version and copyright information.\n");
@@ -433,7 +433,7 @@ void help(void)
 void copyr(void)
 {
     IFDEBUG("copyr()");
-    printf("%s - Version %s\n", "exN", VERSION);
+    printf("%s - Version %s\n", "ViStar", VERSION);
     printf("\nCopyright (C) %d %s <%s>, GNU GPL version 2 <http://gnu.org/licenses/gpl.html>. This  is  free  software: you are free to change and redistribute it. There is NO WARRANTY, to the extent permitted by law. USE IT AS IT IS. The author takes no responsability to any damage this software may inflige in your data.\n\n", 2016, "Ruben Carlo Benante", "rcb@beco.cc");
     if(verb > 3) printf("copyr(): Verbose: %d\n", verb); /* -vvvv */
     exit(EXIT_FAILURE);
@@ -481,7 +481,7 @@ void copyr(void)
  */
 void vistar_init(void)
 {
-    IFDEBUG("exN_init()");
+    IFDEBUG("vistar_init()");
     /* initialization */
     return;
 }
@@ -531,6 +531,8 @@ void init_interface(void)
     cursor_y = 0;
     modified = false;
     help_visible = false;
+    clear();
+    refresh();
 }
 
 /* ------------------------------------------------------------------------- */
@@ -547,7 +549,7 @@ void init_interface(void)
 void update_status(void)
 {
     werase(status_win);
-    mvwprintw(status_win, 0, 0, " %s | Line: %d Col: %d%s",
+    mvwprintw(status_win, 0, 0, " %s | Line: %d Col: %d%s | ^J Ajuda",
               filename[0] ? filename : "[Sem Nome]", cursor_y + 1, cursor_x + 1, modified ? " | Modified" : "");
     wrefresh(status_win);
 }
