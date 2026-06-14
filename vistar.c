@@ -549,7 +549,7 @@ void init_interface(void)
 void update_status(void)
 {
     werase(status_win);
-    mvwprintw(status_win, 0, 0, " %s | Line: %d Col: %d%s | ^J Ajuda",
+    mvwprintw(status_win, 0, 0, " %s | Line: %d Col: %d%s | ^J Help",
               filename[0] ? filename : "[Sem Nome]", cursor_y + 1, cursor_x + 1, modified ? " | Modified" : "");
     wrefresh(status_win);
 }
