@@ -550,7 +550,7 @@ void update_status(void)
 {
     werase(status_win);
     mvwprintw(status_win, 0, 0, " %s | Line: %d Col: %d%s | ^J Help",
-              filename[0] ? filename : "[Sem Nome]", cursor_y + 1, cursor_x + 1, modified ? " | Modified" : "");
+              filename[0] ? filename : "[No Name]", cursor_y + 1, cursor_x + 1, modified ? " | Modified" : "");
     wrefresh(status_win);
 }
 
