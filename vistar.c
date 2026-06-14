@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
                 return EXIT_FAILURE;
         }
 
-    vistar_init(); /* initialization function */
+    vistar_init();
     init_interface();
 
     bool expect_ctrl_k = false;
@@ -169,7 +169,6 @@ int main(int argc, char *argv[])
 
     while(1)
     {
-        /* Ajustar scroll se necessario */
         if(cursor_y < buffer->top_line) {
             buffer->top_line = cursor_y;
         } else {
