@@ -373,6 +373,17 @@ int main(int argc, char *argv[])
                         if(cursor_x > buffer->line_lengths[cursor_y]) cursor_x = buffer->line_lengths[cursor_y];
                     }
                     break;
+                case KEY_RESIZE:
+                    clear();
+                    if(status_win) delwin(status_win);
+                    status_win = newwin(1, COLS, LINES - 1, 0);
+                    wbkgd(status_win, COLOR_PAIR(2));
+                    if(help_visible) {
+                        help_win = newwin(7, COLS, 0, 0);
+                        wbkgd(help_win, COLOR_PAIR(1));
+                    }
+                    refresh();
+                    break;
                 default:
                     if(ch >= 32 && ch <= 126) {
                         insert_char(buffer, ch, cursor_y, cursor_x);
