@@ -163,6 +163,13 @@ int main(int argc, char *argv[])
 
     vistar_init();
     init_interface();
+    
+    if (optind < argc) 
+    {
+        strncpy(filename, argv[optind], sizeof(filename) - 1);
+        filename[sizeof(filename) - 1] = '\0';
+        load_file(buffer, filename);
+    }
 
     bool expect_ctrl_k = false;
     bool expect_ctrl_q = false;
