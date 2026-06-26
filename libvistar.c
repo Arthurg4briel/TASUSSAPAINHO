@@ -345,28 +345,36 @@ int save_file(TextBuffer *buffer, const char *filename)
  */
 int load_file(TextBuffer *buffer, const char *filename)
 {
-   FILE *fp;
-   char buf[2048];
-   fp = fopen(filename, "r");
-   if(fp == NULL) return 0;
+    FILE *fp;
+    char *linebuf = NULL; /* getline aloca e expande dinamicamente */
+    size_t linecap = 0;
+    ssize_t linelen;
 
-   new_file(buffer); /* Limpa o buffer primeiro */
+    fp = fopen(filename, "r");
+    if(fp == NULL) return 0;
 
-   if (fgets(buf, sizeof(buf), fp) != NULL) {
-       buf[strcspn(buf, "\r\n")] = '\0';
-       buffer->lines[0] = realloc(buffer->lines[0], strlen(buf) + 1);
-       strcpy(buffer->lines[0], buf);
-       buffer->line_lengths[0] = strlen(buf);
-       while(fgets(buf, sizeof(buf), fp) != NULL) {
-           buf[strcspn(buf, "\r\n")] = '\0';
-           insert_newline(buffer, buffer->num_lines - 1, buffer->line_lengths[buffer->num_lines - 1]);
-           buffer->lines[buffer->num_lines - 1] = realloc(buffer->lines[buffer->num_lines - 1], strlen(buf) + 1);
-           strcpy(buffer->lines[buffer->num_lines - 1], buf);
-           buffer->line_lengths[buffer->num_lines - 1] = strlen(buf);
-       }
-   }
-   fclose(fp);
-   return 1;
+    new_file(buffer); /* Limpa o buffer primeiro */
+
+    /* Primeira linha: lê sobre a linha vazia já criada por new_file() */
+    if((linelen = getline(&linebuf, &linecap, fp)) != -1) {
+        linebuf[strcspn(linebuf, "\r\n")] = '\0'; /* remove \r e/ou \n */
+        buffer->lines[0] = realloc(buffer->lines[0], strlen(linebuf) + 1);
+        strcpy(buffer->lines[0], linebuf);
+        buffer->line_lengths[0] = strlen(linebuf);
+
+        /* Linhas seguintes */
+        while((linelen = getline(&linebuf, &linecap, fp)) != -1) {
+            linebuf[strcspn(linebuf, "\r\n")] = '\0';
+            insert_newline(buffer, buffer->num_lines - 1, buffer->line_lengths[buffer->num_lines - 1]);
+            buffer->lines[buffer->num_lines - 1] = realloc(buffer->lines[buffer->num_lines - 1], strlen(linebuf) + 1);
+            strcpy(buffer->lines[buffer->num_lines - 1], linebuf);
+            buffer->line_lengths[buffer->num_lines - 1] = strlen(linebuf);
+        }
+    }
+
+    free(linebuf); /* libera o buffer alocado pelo getline */
+    fclose(fp);
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */

@@ -79,9 +79,12 @@
 /* ------------------------------------------------------------------------- */
 /* includes */
 
+/* #include <bits/getopt_core.h> */
+#include <curses.h>
 #include <stdio.h> /* Standard I/O functions */
 #include <stdlib.h> /* Miscellaneous functions (rand, malloc, srand)*/
 #include <getopt.h> /* get options from system argc/argv */
+#include <bits/getopt_core.h>
 #include <ncurses.h> /* Screen handling and optimisation functions */
 #include <string.h> /* Strings functions definitions */
 #include "vistar.h" /* To be created for this template if needed */
@@ -138,9 +141,9 @@ int verb = 0;
  * @bug There is a bug with...
  * @todo Need to do...
  * @note You can read more about it at <<a href="http://www.beco.cc">www.beco.cc</a>>
- * @author Ruben Carlo Benante
+ * @author Arthur Gabriel Damascena Alves Da Costa
  * @version 20160908.182830
- * @date 2016-09-08
+ * @date 2026-06-25
  *
  */
 int main(int argc, char *argv[])
@@ -163,8 +166,8 @@ int main(int argc, char *argv[])
 
     vistar_init();
     init_interface();
-    
-    if (optind < argc) 
+
+    if (optind < argc)
     {
         strncpy(filename, argv[optind], sizeof(filename) - 1);
         filename[sizeof(filename) - 1] = '\0';
@@ -186,10 +189,16 @@ int main(int argc, char *argv[])
         }
 
         draw_text();
+        wnoutrefresh(stdscr);
         update_status();
+        if(help_visible && help_win) {
+            touchwin(help_win); /* Força o ncurses a respeitar a prioridade Z-order do Help */
+            wnoutrefresh(help_win);
+        }
+
         int screen_y = cursor_y - buffer->top_line + (help_visible ? 7 : 0);
         move(screen_y, cursor_x);
-        refresh();
+        doupdate();
 
         ch = getch();
         if(expect_ctrl_k) {
@@ -386,13 +395,15 @@ int main(int argc, char *argv[])
                     status_win = newwin(1, COLS, LINES - 1, 0);
                     wbkgd(status_win, COLOR_PAIR(2));
                     if(help_visible) {
-                        help_win = newwin(7, COLS, 0, 0);
-                        wbkgd(help_win, COLOR_PAIR(1));
+                        help_visible = false;
+                        if(help_win) delwin(help_win);
+                        help_win = NULL;
+                        toggle_help(); /* Força recriação limpa geométrica nas novas colunas */
                     }
-                    refresh();
                     break;
                 default:
-                    if(ch >= 32 && ch <= 126) {
+                    if(ch >= 32 && ch <= 126)
+                    {
                         insert_char(buffer, ch, cursor_y, cursor_x);
                         cursor_x++;
                         modified = true;
@@ -499,21 +510,8 @@ void copyr(void)
 void vistar_init(void)
 {
     IFDEBUG("vistar_init()");
-    /* initialization */
     return;
 }
-/* ------------------------------------------------------------------------- */
-/**
- * @ingroup GroupUnique
- * @brief Prints version and copyright information and exit
- * @details Prints version and copyright information (usually called by opt -V)
- * @return Void
- * @author Ruben Carlo Benante
- * @version 20160908.182830
- * @date 2016-09-08
- *
- */
-
 /* ------------------------------------------------------------------------- */
 /**
  * @ingroup GroupUnique
@@ -529,7 +527,7 @@ void init_interface(void)
 {
     initscr();
     raw();
-    nonl(); /* Evita que o Enter (\r) seja lido como \n (CTRL+J) */
+    nonl();
     keypad(stdscr, TRUE);
     noecho();
     start_color();
@@ -548,40 +546,16 @@ void init_interface(void)
     cursor_y = 0;
     modified = false;
     help_visible = false;
-    clear();
-    refresh();
 }
 
-/* ------------------------------------------------------------------------- */
-/**
- * @ingroup GroupUnique
- * @brief Updates the bottom status bar
- * @details Displays the file name being edited, cursor position, and modification status
- * @return Void
- * @author Equipe Blossom
- * @version 20260614.000000
- * @date 2026-06-14
- *
- */
 void update_status(void)
 {
     werase(status_win);
-    mvwprintw(status_win, 0, 0, " %s | Line: %d Col: %d%s | ^J Help",
+    mvwprintw(status_win, 0, 0, " %s | Line: %d Col: %d%s",
               filename[0] ? filename : "[No Name]", cursor_y + 1, cursor_x + 1, modified ? " | Modified" : "");
-    wrefresh(status_win);
+    wnoutrefresh(status_win);
 }
 
-/* ------------------------------------------------------------------------- */
-/**
- * @ingroup GroupUnique
- * @brief Toggles the help window display
- * @details Shows or hides the window containing the available shortcuts and adjusts the screen
- * @return Void
- * @author Equipe Blossom
- * @version 20260614.000000
- * @date 2026-06-14
- *
- */
 void toggle_help(void)
 {
     help_visible = !help_visible;
@@ -597,29 +571,15 @@ void toggle_help(void)
         wprintw(help_win, "  ^QR top  ^QC bottom         ^QF search             ^KY cut               ^J toggle help\n");
         wprintw(help_win, "                             ^K0-9 set mark\n");
         wprintw(help_win, "                             ^Q0-9 goto mark\n");
-        wrefresh(help_win);
+        wnoutrefresh(help_win);
     }
     else
     {
         delwin(help_win);
         help_win = NULL;
-        clear();
-        refresh();
-        update_status();
     }
 }
 
-/* ------------------------------------------------------------------------- */
-/**
- * @ingroup GroupUnique
- * @brief Terminates the application and frees resources
- * @details Destroys the active ncurses windows, frees the text buffer and the clipboard
- * @return Void
- * @author Equipe Blossom
- * @version 20260614.000000
- * @date 2026-06-14
- *
- */
 void cleanup(void)
 {
     if(help_win) delwin(help_win);
@@ -748,4 +708,3 @@ void prompt_search(char *prompt_msg, char *input_buffer, int max_len)
 /* ------------------------------------------------------------------------- */
 /* vi: set ai et ts=4 sw=4 tw=0 wm=0 fo=croql : C config for Vim modeline    */
 /* Template by Dr. Beco <rcb at beco dot cc>       Version 20180716.101436   */
-
