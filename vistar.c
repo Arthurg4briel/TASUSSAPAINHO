@@ -179,11 +179,15 @@ int main(int argc, char *argv[])
 
     while(1)
     {
-        if(cursor_y < buffer->top_line) {
+        if(cursor_y < buffer->top_line)
+        {
             buffer->top_line = cursor_y;
-        } else {
+        }
+        else
+        {
             int max_visible = LINES - 2 - (help_visible ? 7 : 0);
-            if(cursor_y > buffer->top_line + max_visible) {
+            if(cursor_y > buffer->top_line + max_visible)
+            {
                 buffer->top_line = cursor_y - max_visible;
             }
         }
@@ -191,20 +195,22 @@ int main(int argc, char *argv[])
         draw_text();
         wnoutrefresh(stdscr);
         update_status();
-        if(help_visible && help_win) {
-            touchwin(help_win); /* Força o ncurses a respeitar a prioridade Z-order do Help */
+        if (help_visible && help_win)
+        {
+            touchwin(help_win);
             wnoutrefresh(help_win);
         }
-
         int screen_y = cursor_y - buffer->top_line + (help_visible ? 7 : 0);
         move(screen_y, cursor_x);
         doupdate();
 
         ch = getch();
-        if(expect_ctrl_k) {
+        if(expect_ctrl_k)
+        {
             expect_ctrl_k = false;
             ch = toupper(ch);
-            switch(ch) {
+            switch(ch)
+            {
                 case 'B':
                     editor.block_begin_line = cursor_y;
                     editor.block_begin_col = cursor_x;
@@ -216,7 +222,8 @@ int main(int argc, char *argv[])
                     editor.block_active = true;
                     break;
                 case 'C':
-                    if(editor.block_active) {
+                    if(editor.block_active)
+                    {
                         copy_block(buffer, editor.clipboard, editor.block_begin_line, editor.block_begin_col, editor.block_end_line, editor.block_end_col);
                         editor.block_active = false;
                     }
@@ -226,17 +233,20 @@ int main(int argc, char *argv[])
                     modified = true;
                     break;
                 case 'Y':
-                    if(editor.block_active) {
+                    if(editor.block_active)
+                    {
                         cut_block(buffer, editor.clipboard, editor.block_begin_line, editor.block_begin_col, editor.block_end_line, editor.block_end_col, &cursor_y, &cursor_x);
                         editor.block_active = false;
                         modified = true;
                     }
                     break;
                 case 'S':
-                    if(filename[0] == '\0') {
+                    if(filename[0] == '\0')
+                    {
                         prompt_filename("Save file as: ", filename, sizeof(filename));
                     }
-                    if(filename[0] != '\0') {
+                    if(filename[0] != '\0')
+                    {
                         if(save_file(buffer, filename)) modified = false;
                     }
                     break;
@@ -244,8 +254,10 @@ int main(int argc, char *argv[])
                     {
                         char temp_name[256];
                         prompt_filename("Open file: ", temp_name, sizeof(temp_name));
-                        if(temp_name[0] != '\0') {
-                            if(load_file(buffer, temp_name)) {
+                        if(temp_name[0] != '\0')
+                        {
+                            if(load_file(buffer, temp_name))
+                            {
                                 strcpy(filename, temp_name);
                                 cursor_y = 0; cursor_x = 0;
                                 modified = false;
@@ -262,47 +274,58 @@ int main(int argc, char *argv[])
                     editor.block_active = false;
                     break;
                 case 'Q':
-                    if(modified) {
+                    if(modified)
+                    {
                         char resp[10];
                         prompt_filename("Unsaved changes! Quit anyway? (y/n): ", resp, sizeof(resp));
                         if(resp[0] == 'y' || resp[0] == 'Y') goto exit_loop;
-                    } else {
+                    }
+                    else
+                    {
                         goto exit_loop;
                     }
                     break;
                 default:
-                    if(ch >= '0' && ch <= '9') {
+                    if(ch >= '0' && ch <= '9')
+                    {
                         set_marker(buffer, ch - '0', cursor_y, cursor_x);
                     }
                     break;
             }
         }
-        else if(expect_ctrl_q) {
+        else if(expect_ctrl_q)
+        {
             expect_ctrl_q = false;
             ch = toupper(ch);
-            switch(ch) {
+            switch(ch)
+            {
                 case 'S': cursor_x = 0; break;
                 case 'D': cursor_x = buffer->line_lengths[cursor_y]; break;
                 case 'R': cursor_y = 0; cursor_x = 0; break;
                 case 'C': cursor_y = buffer->num_lines - 1; cursor_x = buffer->line_lengths[cursor_y]; break;
                 case 'F':
                     prompt_search("Search for: ", editor.search_term, sizeof(editor.search_term));
-                    if(editor.search_term[0] != '\0') {
+                    if(editor.search_term[0] != '\0')
+                    {
                         int search_l = cursor_y, search_c = cursor_x;
-                        if(search_text(buffer, editor.search_term, &search_l, &search_c)) {
+                        if(search_text(buffer, editor.search_term, &search_l, &search_c))
+                        {
                             cursor_y = search_l; cursor_x = search_c;
                         }
                     }
                     break;
                 default:
-                    if(ch >= '0' && ch <= '9') {
+                    if(ch >= '0' && ch <= '9')
+                    {
                         goto_marker(buffer, ch - '0', &cursor_y, &cursor_x);
                     }
                     break;
             }
         }
-        else {
-            switch(ch) {
+        else
+        {
+            switch(ch)
+            {
                 case CTRL('s'): if(cursor_x > 0) cursor_x--; else if(cursor_y > 0) { cursor_y--; cursor_x = buffer->line_lengths[cursor_y]; } break;
                 case CTRL('d'): if(cursor_x < buffer->line_lengths[cursor_y]) cursor_x++; else if(cursor_y < buffer->num_lines - 1) { cursor_y++; cursor_x = 0; } break;
                 case CTRL('e'): if(cursor_y > 0) { cursor_y--; if(cursor_x > buffer->line_lengths[cursor_y]) cursor_x = buffer->line_lengths[cursor_y]; } break;
@@ -316,10 +339,13 @@ int main(int argc, char *argv[])
                     while(cursor_x < buffer->line_lengths[cursor_y] && (buffer->lines[cursor_y][cursor_x] == ' ' || buffer->lines[cursor_y][cursor_x] == '\t')) cursor_x++;
                     break;
                 case CTRL('g'):
-                    if(cursor_x < buffer->line_lengths[cursor_y]) {
+                    if(cursor_x < buffer->line_lengths[cursor_y])
+                    {
                         delete_char(buffer, cursor_y, cursor_x, 1);
                         modified = true;
-                    } else if(cursor_y < buffer->num_lines - 1) {
+                    }
+                    else if(cursor_y < buffer->num_lines - 1)
+                    {
                         join_lines(buffer, cursor_y);
                         modified = true;
                     }
@@ -327,11 +353,14 @@ int main(int argc, char *argv[])
                 case CTRL('h'):
                 case 127:
                 case KEY_BACKSPACE:
-                    if(cursor_x > 0) {
+                    if(cursor_x > 0)
+                    {
                         delete_char(buffer, cursor_y, cursor_x, -1);
                         cursor_x--;
                         modified = true;
-                    } else if(cursor_y > 0) {
+                    }
+                    else if(cursor_y > 0)
+                    {
                         cursor_x = buffer->line_lengths[cursor_y - 1];
                         join_lines(buffer, cursor_y - 1);
                         cursor_y--;
@@ -351,10 +380,12 @@ int main(int argc, char *argv[])
                 case CTRL('k'): expect_ctrl_k = true; break;
                 case CTRL('q'): expect_ctrl_q = true; break;
                 case CTRL('l'):
-                    if(editor.search_term[0] != '\0') {
+                    if(editor.search_term[0] != '\0')
+                    {
                         int search_l = cursor_y, search_c = cursor_x + 1;
                         if(search_c >= buffer->line_lengths[search_l]) { search_l++; search_c = 0; }
-                        if(search_l < buffer->num_lines && search_text(buffer, editor.search_term, &search_l, &search_c)) {
+                        if(search_l < buffer->num_lines && search_text(buffer, editor.search_term, &search_l, &search_c))
+                        {
                             cursor_y = search_l; cursor_x = search_c;
                         }
                     }
@@ -394,11 +425,12 @@ int main(int argc, char *argv[])
                     if(status_win) delwin(status_win);
                     status_win = newwin(1, COLS, LINES - 1, 0);
                     wbkgd(status_win, COLOR_PAIR(2));
-                    if(help_visible) {
+                    if (help_visible)
+                    {
                         help_visible = false;
                         if(help_win) delwin(help_win);
                         help_win = NULL;
-                        toggle_help(); /* Força recriação limpa geométrica nas novas colunas */
+                        toggle_help();
                     }
                     break;
                 default:
@@ -585,7 +617,8 @@ void cleanup(void)
     if(help_win) delwin(help_win);
     if(status_win) delwin(status_win);
     if(buffer) free_buffer(buffer);
-    if(editor.clipboard) {
+    if(editor.clipboard)
+    {
         free_clipboard(editor.clipboard);
         free(editor.clipboard);
     }
@@ -612,22 +645,28 @@ void draw_text(void)
     int end_line = start_line + LINES - 2;
     int i;
 
-    if (help_visible) {
+    if (help_visible)
+    {
         end_line -= 7;
     }
 
-    for(i = start_line; i <= end_line; i++) {
+    for(i = start_line; i <= end_line; i++)
+    {
         int screen_y = i - start_line + (help_visible ? 7 : 0);
         move(screen_y, 0);
         clrtoeol();
 
-        if (i < buffer->num_lines) {
+        if (i < buffer->num_lines)
+        {
             int j;
-            for(j = 0; j < buffer->line_lengths[i]; j++) {
+            for(j = 0; j < buffer->line_lengths[i]; j++)
+            {
                 bool in_block = false;
-                if(editor.block_active) {
+                if(editor.block_active)
+                {
                     if((i > editor.block_begin_line || (i == editor.block_begin_line && j >= editor.block_begin_col)) &&
-                       (i < editor.block_end_line || (i == editor.block_end_line && j < editor.block_end_col))) {
+                       (i < editor.block_end_line || (i == editor.block_end_line && j < editor.block_end_col)))
+                    {
                         in_block = true;
                     }
                 }
@@ -665,11 +704,15 @@ void prompt_filename(char *prompt_msg, char *input_buffer, int max_len)
     mvwprintw(status_win, 0, 0, "%s", prompt_msg);
     wrefresh(status_win);
 
-    while((ch = getch()) != '\n' && ch != '\r' && ch != 27) {
-        if((ch == '\b' || ch == 127 || ch == CTRL('h')) && pos > 0) {
+    while((ch = getch()) != '\n' && ch != '\r' && ch != 27)
+    {
+        if((ch == '\b' || ch == 127 || ch == CTRL('h')) && pos > 0)
+        {
             pos--;
             input_buffer[pos] = '\0';
-        } else if(ch >= 32 && ch <= 126 && pos < max_len - 1) {
+        }
+        else if(ch >= 32 && ch <= 126 && pos < max_len - 1)
+        {
             input_buffer[pos++] = ch;
             input_buffer[pos] = '\0';
         }
@@ -678,7 +721,8 @@ void prompt_filename(char *prompt_msg, char *input_buffer, int max_len)
         wrefresh(status_win);
     }
 
-    if (ch == 27) { /* ESC cancels */
+    if (ch == 27)
+    { /* ESC cancels */
         input_buffer[0] = '\0';
     }
 }
